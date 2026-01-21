@@ -9,12 +9,16 @@ interface MerchantGroup {
 
 /**
  * Normalizes merchant names to group similar transactions.
- * e.g., "Spotify 0123456789" -> "SPOTIFY"
+ * Uppercases the text and removes all non-alphabetic characters (digits, punctuation, symbols),
+ * while preserving spaces, so that examples like:
+ *   - "Spotify 0123456789"      -> "SPOTIFY"
+ *   - "APL*APPLE.COM/BILL"      -> "APLAPPLECOMBILL" (contains "APPLE")
+ * can be matched against common subscription keywords.
  */
 const normalizeMerchant = (rawText: string | null, description: string): string => {
   const text = rawText || description;
-  // Simple normalization: uppercase and remove numbers/special chars at the end
-  // This is a basic implementation and can be improved with regex or a lookup table
+  // Simple normalization: uppercase and remove all non-letter characters except spaces
+  // This is a basic implementation and can be improved with a smarter regex or a lookup table
   let normalized = text.toUpperCase().replace(/[^A-Z\s]/g, "").trim();
 
   // Common subscription keywords cleanup
