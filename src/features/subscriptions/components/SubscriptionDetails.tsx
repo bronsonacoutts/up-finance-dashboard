@@ -52,7 +52,7 @@ export const SubscriptionDetails = ({ subscription, open, onOpenChange }: Subscr
             {/* Price Change Alert */}
             {subscription.priceChange && (
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 flex items-start gap-3">
-                    <span className="text-xl">⚠️</span>
+                    <span className="text-xl" role="img" aria-label="Warning">⚠️</span>
                     <div>
                         <h4 className="font-semibold text-yellow-900 dark:text-yellow-200">Price Increase Detected</h4>
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">
