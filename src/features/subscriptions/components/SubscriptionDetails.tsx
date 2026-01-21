@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from "date-fns";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Card } from "@/components/ui/card";
+import { Users } from "lucide-react";
 
 interface SubscriptionDetailsProps {
   subscription: Subscription | null;
@@ -56,6 +57,24 @@ export const SubscriptionDetails = ({ subscription, open, onOpenChange }: Subscr
                         <h4 className="font-semibold text-yellow-900 dark:text-yellow-200">Price Increase Detected</h4>
                         <p className="text-sm text-yellow-800 dark:text-yellow-300">
                             The price increased by {new Intl.NumberFormat("en-AU", { style: "currency", currency: subscription.amount.currency }).format(subscription.priceChange.amount)} ({subscription.priceChange.percentage.toFixed(1)}%) on {format(parseISO(subscription.priceChange.date), "MMM d, yyyy")}.
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* Shared Subscription Info */}
+            {subscription.sharing?.isShared && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex items-start gap-3">
+                    <Users className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                    <div className="flex-1">
+                        <div className="flex justify-between items-start">
+                            <h4 className="font-semibold text-blue-900 dark:text-blue-200">Shared Subscription</h4>
+                            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                                Your share: {new Intl.NumberFormat("en-AU", { style: "currency", currency: subscription.amount.currency }).format(subscription.sharing.yourShare)}
+                            </span>
+                        </div>
+                        <p className="text-sm text-blue-800 dark:text-blue-300 mt-1">
+                            Shared with {subscription.sharing.sharedWith.join(", ")}
                         </p>
                     </div>
                 </div>
@@ -118,7 +137,7 @@ export const SubscriptionDetails = ({ subscription, open, onOpenChange }: Subscr
                                 borderRadius: "8px"
                             }}
                             itemStyle={{ color: "hsl(var(--foreground))" }}
-                            formatter={(value: number) => [`$${value.toFixed(2)}`, "Amount"]}
+                            formatter={(value: number | undefined) => [`$${(value || 0).toFixed(2)}`, "Amount"]}
                         />
                         <Area
                             type="monotone"

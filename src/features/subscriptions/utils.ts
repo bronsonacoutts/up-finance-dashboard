@@ -97,16 +97,12 @@ const analyzeGroup = (group: MerchantGroup): Subscription | null => {
   const latestAmount = amounts[0];
 
   // Price Change Detection
-  // Check if the latest amount is different from the previous one (ignoring small variances)
   let priceChange: Subscription["priceChange"] | undefined = undefined;
 
   if (amounts.length > 1) {
-    const previousAmount = amounts[1]; // The transaction before the latest one
-
-    // Check if there is a significant difference (>$0.50 or >2%)
+    const previousAmount = amounts[1];
     if (Math.abs(latestAmount - previousAmount) > 0.5 &&
         Math.abs(latestAmount - previousAmount) / previousAmount > 0.02) {
-
       const diff = latestAmount - previousAmount;
       priceChange = {
         amount: diff,
@@ -116,23 +112,34 @@ const analyzeGroup = (group: MerchantGroup): Subscription | null => {
     }
   }
 
-  // If price changed, we still want to consider it a subscription, so we relax the consistency check
-  // But we still want to filter out random merchants.
-  // We can use the frequency as a strong signal.
-  // If frequency is detected, we accept it even if amounts vary (within reason or with a clear step change)
-
-  // Let's refine consistency check:
-  // It's consistent if:
-  // 1. All amounts are roughly same OR
-  // 2. There was a single step change (price increase)
-
-  // For now, if we detected a frequency, we are fairly confident.
-  // Let's rely on frequency mostly.
   const isConsistent = amounts.every(a => Math.abs(a - latestAmount) / latestAmount < 0.1);
 
   // Calculate next billing date
   const lastDate = dates[0];
   const nextDate = addDays(lastDate, Math.round(avgInterval));
+
+  // Shared Subscription Logic (Simulation)
+  // Logic: If it's a known family plan cost OR if the performing customer varies (joint account)
+  // For now, let's look for "Family" in the description or specific price points
+  // e.g. Spotify Family ~$18-20 AUD, Netflix Premium ~$25 AUD
+  let sharing: Subscription["sharing"] | undefined = undefined;
+
+  const description = sortedTx[0].attributes.description.toUpperCase();
+  // Check if transactions are from a joint account (mock logic: check performingCustomer)
+  // In a real app, we'd check account ownership type
+
+  // Simulate logic: if description contains "FAMILY" or amounts are high for the service
+  if (description.includes("FAMILY") ||
+     (merchantName === "SPOTIFY" && latestAmount > 15) ||
+     (merchantName === "NETFLIX" && latestAmount > 22)) {
+
+      sharing = {
+          isShared: true,
+          sharedWith: ["Partner"], // Mocked for now
+          totalCost: latestAmount,
+          yourShare: latestAmount / 2 // Mocked 50/50 split
+      };
+  }
 
   return {
     id: `sub-${merchantName.toLowerCase().replace(/\s/g, "-")}`,
@@ -149,6 +156,7 @@ const analyzeGroup = (group: MerchantGroup): Subscription | null => {
       currency: sortedTx[0].attributes.amount.currencyCode,
     },
     priceChange,
+    sharing,
     billing: {
       frequency,
       cycleDays: Math.round(avgInterval),

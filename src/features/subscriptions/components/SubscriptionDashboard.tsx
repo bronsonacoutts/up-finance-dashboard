@@ -115,7 +115,7 @@ export const SubscriptionDashboard = () => {
       <SubscriptionDetails
         subscription={selectedSubscription}
         open={!!selectedSubscription}
-        onOpenChange={(open) => !open && setSelectedSubscription(null)}
+        onOpenChange={(open: boolean) => !open && setSelectedSubscription(null)}
       />
     </div>
   );

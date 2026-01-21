@@ -20,6 +20,12 @@ export interface Subscription {
     percentage: number;
     date: string;
   };
+  sharing?: {
+    isShared: boolean;
+    sharedWith: string[]; // Names of people shared with
+    yourShare: number;
+    totalCost: number;
+  };
   billing: {
     frequency: "WEEKLY" | "FORTNIGHTLY" | "MONTHLY" | "QUARTERLY" | "BIANNUAL" | "ANNUAL";
     cycleDays?: number; // Estimated days between cycles
