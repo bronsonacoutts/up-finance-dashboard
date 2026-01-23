@@ -64,12 +64,16 @@ const analyzeGroup = (group: MerchantGroup): Subscription | null => {
   // Need at least 2 transactions to detect a pattern
   if (transactions.length < 2) return null;
 
-  // Sort by date descending (newest first)
-  const sortedTx = transactions.sort((a, b) =>
-    new Date(b.attributes.createdAt).getTime() - new Date(a.attributes.createdAt).getTime()
-  );
+  // Pre-parse dates and sort by date descending (newest first)
+  const transactionsWithDates = transactions.map(tx => ({
+    tx,
+    createdAt: parseISO(tx.attributes.createdAt),
+  }));
 
-  const dates = sortedTx.map(tx => parseISO(tx.attributes.createdAt));
+  transactionsWithDates.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+  const sortedTx = transactionsWithDates.map(item => item.tx);
+  const dates = transactionsWithDates.map(item => item.createdAt);
   const intervals: number[] = [];
 
   for (let i = 0; i < dates.length - 1; i++) {
@@ -144,8 +148,13 @@ export const detectSubscriptions = (transactions: TransactionResource[]): Subscr
     }
   });
 
-  // Sort by next billing date
-  return subscriptions.sort((a, b) =>
-    compareAsc(parseISO(a.billing.nextBillingDate), parseISO(b.billing.nextBillingDate))
-  );
+  // Pre-parse dates and sort by next billing date
+  const subscriptionsWithParsedDates = subscriptions.map(sub => ({
+    sub,
+    nextBillingDate: parseISO(sub.billing.nextBillingDate),
+  }));
+
+  subscriptionsWithParsedDates.sort((a, b) => compareAsc(a.nextBillingDate, b.nextBillingDate));
+
+  return subscriptionsWithParsedDates.map(item => item.sub);
 };
