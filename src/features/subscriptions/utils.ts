@@ -7,6 +7,9 @@ interface MerchantGroup {
   transactions: TransactionResource[];
 }
 
+// Common subscription keywords cleanup
+const SUBSCRIPTION_KEYWORDS = ["SPOTIFY", "NETFLIX", "APPLE", "GOOGLE", "AMAZON", "ADOBE", "AWS", "PATREON", "DISNEY", "BINGE", "STAN", "AUDIBLE"];
+
 /**
  * Normalizes merchant names to group similar transactions.
  * e.g., "Spotify 0123456789" -> "SPOTIFY"
@@ -17,10 +20,7 @@ const normalizeMerchant = (rawText: string | null, description: string): string 
   // This is a basic implementation and can be improved with regex or a lookup table
   let normalized = text.toUpperCase().replace(/[^A-Z\s]/g, "").trim();
 
-  // Common subscription keywords cleanup
-  const keywords = ["SPOTIFY", "NETFLIX", "APPLE", "GOOGLE", "AMAZON", "ADOBE", "AWS", "PATREON", "DISNEY", "BINGE", "STAN", "AUDIBLE"];
-
-  for (const keyword of keywords) {
+  for (const keyword of SUBSCRIPTION_KEYWORDS) {
     if (normalized.includes(keyword)) {
       return keyword;
     }
