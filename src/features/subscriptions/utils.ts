@@ -65,15 +65,19 @@ const analyzeGroup = (group: MerchantGroup): Subscription | null => {
   if (transactions.length < 2) return null;
 
   // Sort by date descending (newest first)
-  const sortedTx = transactions.sort((a, b) =>
-    new Date(b.attributes.createdAt).getTime() - new Date(a.attributes.createdAt).getTime()
-  );
+  // Optimization: Map to array with timestamp to avoid repeated parsing
+  const withTime = transactions.map((tx) => ({
+    tx,
+    time: new Date(tx.attributes.createdAt).getTime(),
+  }));
 
-  const dates = sortedTx.map(tx => parseISO(tx.attributes.createdAt));
+  withTime.sort((a, b) => b.time - a.time);
+
+  const sortedTx = withTime.map((x) => x.tx);
   const intervals: number[] = [];
 
-  for (let i = 0; i < dates.length - 1; i++) {
-    const diff = differenceInDays(dates[i], dates[i+1]);
+  for (let i = 0; i < withTime.length - 1; i++) {
+    const diff = differenceInDays(withTime[i].time, withTime[i + 1].time);
     intervals.push(diff);
   }
 
@@ -100,7 +104,7 @@ const analyzeGroup = (group: MerchantGroup): Subscription | null => {
   if (!isConsistent && frequency !== "ANNUAL") return null; // Allow annual to vary more? Maybe not.
 
   // Calculate next billing date
-  const lastDate = dates[0];
+  const lastDate = withTime[0].time;
   const nextDate = addDays(lastDate, Math.round(avgInterval));
 
   return {
@@ -121,7 +125,7 @@ const analyzeGroup = (group: MerchantGroup): Subscription | null => {
       frequency,
       cycleDays: Math.round(avgInterval),
       nextBillingDate: nextDate.toISOString(),
-      lastBillingDate: lastDate.toISOString(),
+      lastBillingDate: new Date(lastDate).toISOString(),
     },
     history: sortedTx.map(tx => ({
       transactionId: tx.id,
