@@ -4,6 +4,7 @@ import { useSubscriptionStore } from "../store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/formatters";
 
 export const SubscriptionDashboard = () => {
   const { subscriptions, isLoading, error, scanForSubscriptions } = useSubscriptionStore();
@@ -58,7 +59,7 @@ export const SubscriptionDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(totalMonthlyCost)}
+              {formatCurrency(totalMonthlyCost, "AUD")}
             </div>
           </CardContent>
         </Card>
@@ -86,7 +87,7 @@ export const SubscriptionDashboard = () => {
              <div className="mt-4 md:mt-0 flex items-center space-x-4">
                 <div className="text-right">
                   <div className="font-bold text-lg">
-                    {new Intl.NumberFormat("en-AU", { style: "currency", currency: sub.amount.currency }).format(sub.amount.current)}
+                    {formatCurrency(sub.amount.current, sub.amount.currency)}
                   </div>
                   <div className="text-xs text-muted-foreground">
                     per {sub.billing.frequency.toLowerCase().replace("ly", "")}
