@@ -4,6 +4,7 @@ import { useSubscriptionStore } from "../store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AddSubscriptionDialog } from "./AddSubscriptionDialog";
 
 export const SubscriptionDashboard = () => {
   const { subscriptions, isLoading, error, scanForSubscriptions } = useSubscriptionStore();
@@ -41,7 +42,10 @@ export const SubscriptionDashboard = () => {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <h1 className="text-3xl font-bold">Subscription Dashboard</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Subscription Dashboard</h1>
+        <AddSubscriptionDialog />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card>
