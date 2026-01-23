@@ -8,6 +8,7 @@ interface SubscriptionState {
   isLoading: boolean;
   error: string | null;
   scanForSubscriptions: () => Promise<void>;
+  addSubscription: (subscription: Subscription) => void;
   markAsPaused: (id: string) => void;
   removeSubscription: (id: string) => void;
 }
@@ -16,6 +17,10 @@ export const useSubscriptionStore = create<SubscriptionState>((set) => ({
   subscriptions: [],
   isLoading: false,
   error: null,
+
+  addSubscription: (subscription: Subscription) => {
+    set((state) => ({ subscriptions: [...state.subscriptions, subscription] }));
+  },
 
   scanForSubscriptions: async () => {
     set({ isLoading: true, error: null });
