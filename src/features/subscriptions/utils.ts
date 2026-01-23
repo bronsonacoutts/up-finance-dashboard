@@ -1,39 +1,12 @@
 import { TransactionResource } from "@/types/transaction";
 import { Subscription } from "@/types/subscription";
 import { differenceInDays, parseISO, addDays, compareAsc } from "date-fns";
+import { normalizeMerchantV2 as normalizeMerchant } from "./normalization";
 
 interface MerchantGroup {
   merchantName: string;
   transactions: TransactionResource[];
 }
-
-/**
- * Normalizes merchant names to group similar transactions.
- * e.g., "Spotify 0123456789" -> "SPOTIFY"
- */
-const normalizeMerchant = (rawText: string | null, description: string): string => {
-  const text = rawText || description;
-  // Simple normalization: uppercase and remove numbers/special chars at the end
-  // This is a basic implementation and can be improved with regex or a lookup table
-  let normalized = text.toUpperCase().replace(/[^A-Z\s]/g, "").trim();
-
-  // Common subscription keywords cleanup
-  const keywords = ["SPOTIFY", "NETFLIX", "APPLE", "GOOGLE", "AMAZON", "ADOBE", "AWS", "PATREON", "DISNEY", "BINGE", "STAN", "AUDIBLE"];
-
-  for (const keyword of keywords) {
-    if (normalized.includes(keyword)) {
-      return keyword;
-    }
-  }
-
-  // If no common keyword, take the first 2 words
-  const parts = normalized.split(" ");
-  if (parts.length > 2) {
-    return parts.slice(0, 2).join(" ");
-  }
-
-  return normalized;
-};
 
 /**
  * Groups transactions by normalized merchant name.

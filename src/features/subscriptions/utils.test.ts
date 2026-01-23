@@ -85,4 +85,17 @@ describe("detectSubscriptions", () => {
     const names = subs.map(s => s.name).sort();
     expect(names).toEqual(["Gym", "Netflix"]);
   });
+
+  it("should normalize merchant names before grouping", () => {
+    const today = new Date();
+    const transactions = [
+      createTx("SPOTIFY AB", 11.99, subDays(today, 10).toISOString()),
+      createTx("Spotify", 11.99, subDays(today, 40).toISOString()),
+      createTx("SPOTIFY AUS", 11.99, subDays(today, 70).toISOString()),
+    ];
+
+    const subs = detectSubscriptions(transactions);
+    expect(subs).toHaveLength(1);
+    expect(subs[0].merchant.normalized).toBe("SPOTIFY");
+  });
 });
